@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章详情</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.12/marked.min.js"></script>
+</head>
+<body>
+  <header class="navbar">
+    <nav>
+      <a href="/" class="logo">Blog</a>
+      <a href="/about" class="avatar-container">
+        <img src="avatar.jpg" alt="用户头像" class="profile-avatar">
+      </a>
+      <div class="nav-links">
+        <a href="/archive">归档</a>
+        <a href="/about">关于</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <article class="post-content">
+      <h1 id="post-title"></h1>
+      <div class="post-meta">
+        <time id="post-date"></time>
+      </div>
+      <div id="post-body"></div>
+    </article>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const filename = params.get('filename');
+
+    fetch(`/blogs/${filename}`)
+      .then(response => response.text())
+      .then(markdown => {
+        console.log('原始Markdown内容:', markdown);
+        // 获取文章元数据
+        fetch('/blogs.json')
+          .then(res => res.json())
+          .then(articles => {
+            const meta = articles.find(a => a.filename === filename);
+            console.log('匹配到的元数据:', meta);
+            document.getElementById('post-title').textContent = meta?.title || filename;
+            document.getElementById('post-date').textContent = new Date(meta?.created_at).toLocaleDateString();
+            document.getElementById('post-body').innerHTML = marked.parse(markdown);
+          });
+      })
+      .catch(() => {
+        document.getElementById('post-body').innerHTML = '<p>文章加载失败</p>';
+      });
+  </script>
+</body>
+</html>

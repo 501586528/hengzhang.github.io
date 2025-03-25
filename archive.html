@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章归档</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <nav>
+      <a href="/" class="logo">Blog</a>
+      <div class="nav-links">
+        <a href="/archive.html" class="active">归档</a>
+        <a href="/about.html">关于</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>所有文章</h1>
+    <div id="archive-container"></div>
+
+    <script>
+      fetch('/blogs.json')
+        .then(response => response.json())
+        .then(articles => {
+          const container = document.getElementById('archive-container');
+          articles.forEach(article => {
+            const articleDiv = document.createElement('div');
+            articleDiv.className = 'post';
+            articleDiv.innerHTML = `
+              <h3 class="post-title">
+                <a href="/article.html?filename=${article.filename}">${article.title}</a>
+              </h3>
+              <div class="post-meta">
+                <time datetime="${article.created_at}">
+                  ${new Date(article.created_at).toLocaleDateString('zh-CN')}
+                </time>
+              </div>
+            `;
+            container.appendChild(articleDiv);
+          });
+        });
+    </script>
+  </main>
+</body>
+</html>
